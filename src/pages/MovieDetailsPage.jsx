@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
 import { useWatchlist } from "../context/watchlist";
 import LoginModal from "../pages/LoginPage"; // Import the LoginModal component
@@ -24,7 +24,6 @@ const MovieDetailsPage = () => {
 
   const handleWatchlist = () => {
     if (!user) {
-      // If user is not logged in, open the login modal
       setIsLoginModalOpen(true);
     } else if (isInWatchlist) {
       removeFromWatchlist(id);
@@ -34,9 +33,12 @@ const MovieDetailsPage = () => {
   };
 
   const handleLoginSuccess = () => {
-    // Close the login modal and add the movie to the watchlist
     setIsLoginModalOpen(false);
-    addToWatchlist(movie);
+    addToWatchlist(movie); 
+  };
+
+  const handleCloseModal = () => {
+    setIsLoginModalOpen(false); 
   };
 
   if (!movie) return <div>Loading...</div>;
@@ -56,9 +58,7 @@ const MovieDetailsPage = () => {
 
           <button
             onClick={handleWatchlist}
-            className={`mt-4 px-4 py-2 rounded ${
-              isInWatchlist ? "bg-red-600 hover:bg-red-700" : "bg-green-600 hover:bg-green-700"
-            }`}
+            className={`mt-4 px-4 py-2 rounded ${isInWatchlist ? "bg-red-600 hover:bg-red-700" : "bg-green-600 hover:bg-green-700"}`}
           >
             {isInWatchlist ? "Remove from Watchlist" : "Add to Watchlist"}
           </button>
@@ -68,8 +68,8 @@ const MovieDetailsPage = () => {
       {/* Login modal */}
       {isLoginModalOpen && (
         <LoginModal
-          onClose={() => setIsLoginModalOpen(false)}
-          onLoginSuccess={handleLoginSuccess} // Pass handleLoginSuccess function here
+          onClose={handleCloseModal}
+          onLoginSuccess={handleLoginSuccess}
         />
       )}
     </div>

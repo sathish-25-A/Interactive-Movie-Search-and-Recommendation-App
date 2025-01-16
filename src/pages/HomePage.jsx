@@ -1,31 +1,33 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import MovieCard from "../components/MovieCard";
 import LoadingSpinner from "../components/LoadingSpinner";
 import SearchBar from "../components/SearchBar";
 import useAuth from "../hooks/useAuth"; // Import the custom hook for authentication
+import LoginModal from "../pages/LoginPage"; // Corrected path for LoginModal
 
 const HomePage = () => {
-  const { isLoggedIn, login, logout } = useAuth(); // Use the authentication hook
+  const { isLoggedIn } = useAuth(); // Only get isLoggedIn since login/logout are not used
   const [movies, setMovies] = useState([]);
   const [loading, setLoading] = useState(false);
   const [query, setQuery] = useState("");
   const [showLoginModal, setShowLoginModal] = useState(false);
 
-  // Fetch movies from the OMDB API or another API
-  const fetchMovies = async (query) => {
+  // Use useCallback to memoize searchMovies
+  const fetchMovies = useCallback(async (query) => {
     const response = await fetch(
       `https://www.omdbapi.com/?s=${query}&apikey=57fac967`
     );
     const data = await response.json();
     return data;
-  };
+  }, []);
 
-  const searchMovies = async (query) => {
+  // Wrapping searchMovies in useCallback
+  const searchMovies = useCallback(async (query) => {
     setLoading(true);
     const data = await fetchMovies(query);
     setMovies(data?.Search || []);
     setLoading(false);
-  };
+  }, [fetchMovies]);
 
   const handleAddToWatchlist = (movie) => {
     if (!isLoggedIn) {
@@ -38,61 +40,41 @@ const HomePage = () => {
     }
   };
 
+  const handleLoginSuccess = () => {
+    setShowLoginModal(false); // Close modal on login success
+  };
+
   useEffect(() => {
     if (query) {
       searchMovies(query);
     }
-  }, [query]);
+  }, [query, searchMovies]); // Using searchMovies as dependency
 
   return (
     <div className="min-h-screen bg-gray-900 text-white">
-      {/* Remove the Navbar here, as it's already in App.js */}
+      {/* SearchBar Component */}
+      <SearchBar onSearch={setQuery} />
 
-      <div className="container mx-auto px-4 py-10">
-        {/* SearchBar Component */}
-        <SearchBar onSearch={setQuery} />
-
-        {loading ? (
-          <LoadingSpinner />
-        ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
-            {movies?.map((movie) => (
-              <MovieCard
-                key={movie.imdbID}
-                movie={movie}
-                onAddToWatchlist={() => handleAddToWatchlist(movie)}
-              />
-            ))}
-          </div>
-        )}
-      </div>
+      {loading ? (
+        <LoadingSpinner />
+      ) : (
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
+          {movies?.map((movie) => (
+            <MovieCard
+              key={movie.imdbID}
+              movie={movie}
+              onAddToWatchlist={() => handleAddToWatchlist(movie)}
+            />
+          ))}
+        </div>
+      )}
 
       {/* Login Modal */}
       {showLoginModal && (
-        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
-          <div className="bg-gray-800 p-6 rounded-lg w-1/3">
-            <h2 className="text-2xl text-white mb-4">Login</h2>
-            <input
-              type="text"
-              placeholder="Name"
-              className="w-full p-2 mb-4 bg-gray-700 text-white rounded"
-            />
-            <input
-              type="password"
-              placeholder="Password"
-              className="w-full p-2 mb-4 bg-gray-700 text-white rounded"
-            />
-            <button
-              onClick={() => {
-                login("User", "password"); // Simplified login for this example
-                setShowLoginModal(false);
-              }}
-              className="w-full bg-blue-600 hover:bg-blue-700 py-2 rounded text-white"
-            >
-              Login
-            </button>
-          </div>
-        </div>
+        <LoginModal
+          onClose={() => setShowLoginModal(false)} // Close modal
+          onLoginSuccess={handleLoginSuccess} // Close modal after login success
+        />
       )}
     </div>
   );

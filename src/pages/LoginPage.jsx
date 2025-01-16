@@ -1,33 +1,49 @@
 import React, { useState } from "react";
 import { FaTimes } from "react-icons/fa";
-import { useAuth } from "../context/AuthContext"; // Import useAuth
+import { useNavigate } from "react-router-dom"; 
+import { useAuth } from "../context/AuthContext"; // Import the useAuth hook
 
 const LoginModal = ({ onClose, onLoginSuccess }) => {
-  const { login } = useAuth(); // Access the login function from context
+  const { login } = useAuth(); // Get the login method from context
   const [name, setName] = useState("");
   const [password, setPassword] = useState("");
+  const navigate = useNavigate(); 
 
   const handleLogin = (e) => {
     e.preventDefault();
     if (name && password) {
       const userData = { name, password };
-      login(userData);  // Use the login function from context to update state
+      login(userData); // Use the login method from context
       alert("Login successful!");
-      onLoginSuccess(); // Notify parent of login success
 
-      // Close the modal after successful login
-      onClose();
+      if (typeof onLoginSuccess === "function") {
+        onLoginSuccess(); 
+      }
+
+      // Close the modal and navigate to home after a delay
+      setTimeout(() => {
+        if (typeof onClose === "function") {
+          onClose(); // Close modal
+        }
+        navigate("/"); // Navigate to home page
+      }, 500);
     } else {
       alert("Please fill in both fields");
     }
   };
 
+  const handleClose = () => {
+    if (typeof onClose === "function") {
+      onClose(); 
+    }
+    navigate("/"); 
+  };
+
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
       <div className="bg-gray-800 p-6 rounded-lg shadow-lg w-full max-w-sm relative">
-        {/* Close Button */}
         <button
-          onClick={onClose}
+          onClick={handleClose}
           className="absolute top-2 right-2 text-white hover:text-gray-400"
         >
           <FaTimes size={20} />

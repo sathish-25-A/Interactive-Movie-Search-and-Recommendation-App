@@ -1,35 +1,30 @@
 import React from "react";
-import { Link } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
+import { Link } from "react-router-dom";
 
 const Navbar = () => {
-  const { isLoggedIn, user, logout } = useAuth();
+  const { user, logout } = useAuth(); // Access user from context
 
   return (
-    <nav className="bg-gray-800 text-white p-4">
-      <div className="container mx-auto flex justify-between items-center">
-        <Link to="/" className="text-2xl font-semibold">
-          MovieApp
+    <nav className="bg-gray-800 p-4">
+      <div className="flex justify-between items-center">
+        <Link to="/" className="text-white text-lg">
+          Home
         </Link>
-        <div className="flex items-center space-x-4">
-          <Link to="/" className="hover:text-gray-400">Home</Link>
-          {isLoggedIn ? (
+        
+        <div className="text-white">
+          {user ? (
             <>
-              <span className="text-white">Hello, {user.name}</span>
+              <span>Hello, {user.name}</span>
               <button
                 onClick={logout}
-                className="bg-red-600 hover:bg-red-700 px-4 py-2 rounded text-white"
+                className="ml-4 bg-red-600 py-2 px-4 rounded hover:bg-red-700"
               >
                 Logout
               </button>
             </>
           ) : (
-            <Link
-              to="/login"
-              className="bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded text-white"
-            >
-              Login
-            </Link>
+            <Link to="/login" className="ml-4">Login</Link>
           )}
         </div>
       </div>
