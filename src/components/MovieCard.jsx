@@ -1,18 +1,20 @@
-import React from "react";
+import React from 'react';
+import { Link } from 'react-router-dom';  // Import Link from react-router-dom
 
-const MovieCard = ({ movie, onClick }) => {
+const MovieCard = ({ movie, onAddToWatchlist }) => {
   return (
-    <div
-      onClick={onClick}
-      className="cursor-pointer bg-gray-800 text-white p-4 rounded-md shadow-md hover:shadow-lg hover:scale-105 transition-transform"
-    >
-      <img
-        src={movie.Poster}
-        alt={movie.Title}
-        className="w-full h-64 object-cover rounded-md"
-      />
-      <h3 className="mt-2 text-lg font-bold">{movie.Title}</h3>
-      <p className="text-sm text-gray-400">{movie.Year}</p>
+    <div className="bg-gray-800 p-4 rounded-lg shadow-lg">
+      <Link to={`/movie/${movie.imdbID}`}> {/* Add Link here to navigate */}
+        <img src={movie.Poster} alt={movie.Title} className="w-full h-48 object-cover rounded-lg mb-4" />
+        <h3 className="text-white text-xl">{movie.Title}</h3>
+        <p className="text-gray-400 text-sm">{movie.Year}</p>
+      </Link>
+      <button 
+        onClick={() => onAddToWatchlist(movie)} 
+        className="mt-4 bg-red-600 text-white px-4 py-2 rounded-lg"
+      >
+        Add to Watchlist
+      </button>
     </div>
   );
 };

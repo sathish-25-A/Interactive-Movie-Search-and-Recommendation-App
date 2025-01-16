@@ -1,30 +1,30 @@
+// src/components/SearchBar.jsx
 import React, { useState } from "react";
 
 const SearchBar = ({ onSearch }) => {
-  const [query, setQuery] = useState("");
+  const [input, setInput] = useState("");
 
-  const handleSearch = () => {
-    if (query.trim()) {
-      onSearch(query);  // Pass the query back to the parent component
-    }
+  const handleSearch = (e) => {
+    e.preventDefault();
+    onSearch(input); // Pass the input query to the parent component
   };
 
   return (
-    <div className="flex items-center justify-center p-4 bg-gray-800">
+    <form onSubmit={handleSearch} className="flex w-full">
       <input
         type="text"
+        value={input}
+        onChange={(e) => setInput(e.target.value)}
+        className="p-2 w-full rounded-l-md text-black"
         placeholder="Search for movies..."
-        value={query}
-        onChange={(e) => setQuery(e.target.value)}
-        className="w-3/4 p-2 text-black rounded-l-md focus:outline-none"
       />
       <button
-        onClick={handleSearch}
-        className="p-2 bg-blue-600 text-white rounded-r-md hover:bg-blue-700"
+        type="submit"
+        className="bg-blue-500 text-white p-2 rounded-r-md"
       >
         Search
       </button>
-    </div>
+    </form>
   );
 };
 

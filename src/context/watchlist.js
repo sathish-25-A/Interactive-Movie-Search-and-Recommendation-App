@@ -1,6 +1,10 @@
+// src/context/watchlist.js
+
 import React, { createContext, useState, useContext } from "react";
 
 const WatchlistContext = createContext();
+
+export const useWatchlist = () => useContext(WatchlistContext);
 
 export const WatchlistProvider = ({ children }) => {
   const [watchlist, setWatchlist] = useState([]);
@@ -9,8 +13,8 @@ export const WatchlistProvider = ({ children }) => {
     setWatchlist((prev) => [...prev, movie]);
   };
 
-  const removeFromWatchlist = (id) => {
-    setWatchlist((prev) => prev.filter((movie) => movie.imdbID !== id));
+  const removeFromWatchlist = (imdbID) => {
+    setWatchlist((prev) => prev.filter((movie) => movie.imdbID !== imdbID));
   };
 
   return (
@@ -19,5 +23,3 @@ export const WatchlistProvider = ({ children }) => {
     </WatchlistContext.Provider>
   );
 };
-
-export const useWatchlist = () => useContext(WatchlistContext);

@@ -1,18 +1,45 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
+import { useParams } from "react-router-dom";
 import { useWatchlist } from "../context/watchlist";
+import LoginModal from "../pages/LoginPage"; // Import the LoginModal component
 
-const MovieDetailsPage = ({ movie }) => {
+const MovieDetailsPage = () => {
+  const { id } = useParams();
   const { addToWatchlist, removeFromWatchlist, watchlist } = useWatchlist();
+  const [movie, setMovie] = useState(null);
+  const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
 
-  const isInWatchlist = watchlist.some((m) => m.imdbID === movie.imdbID);
+  const isInWatchlist = watchlist.some((m) => m.imdbID === id);
+  const user = JSON.parse(localStorage.getItem("user"));
+
+  const fetchMovieDetails = async (id) => {
+    const response = await fetch(`https://www.omdbapi.com/?i=${id}&apikey=57fac967`);
+    const data = await response.json();
+    setMovie(data);
+  };
+
+  useEffect(() => {
+    fetchMovieDetails(id);
+  }, [id]);
 
   const handleWatchlist = () => {
-    if (isInWatchlist) {
-      removeFromWatchlist(movie.imdbID);
+    if (!user) {
+      // If user is not logged in, open the login modal
+      setIsLoginModalOpen(true);
+    } else if (isInWatchlist) {
+      removeFromWatchlist(id);
     } else {
       addToWatchlist(movie);
     }
   };
+
+  const handleLoginSuccess = () => {
+    // Close the login modal and add the movie to the watchlist
+    setIsLoginModalOpen(false);
+    addToWatchlist(movie);
+  };
+
+  if (!movie) return <div>Loading...</div>;
 
   return (
     <div className="p-6 bg-gray-900 text-white min-h-screen">
@@ -26,18 +53,25 @@ const MovieDetailsPage = ({ movie }) => {
           <h1 className="text-3xl font-bold">{movie.Title}</h1>
           <p className="text-gray-400">{movie.Genre}</p>
           <p className="mt-2">{movie.Plot}</p>
+
           <button
             onClick={handleWatchlist}
             className={`mt-4 px-4 py-2 rounded ${
-              isInWatchlist
-                ? "bg-red-600 hover:bg-red-700"
-                : "bg-green-600 hover:bg-green-700"
+              isInWatchlist ? "bg-red-600 hover:bg-red-700" : "bg-green-600 hover:bg-green-700"
             }`}
           >
             {isInWatchlist ? "Remove from Watchlist" : "Add to Watchlist"}
           </button>
         </div>
       </div>
+
+      {/* Login modal */}
+      {isLoginModalOpen && (
+        <LoginModal
+          onClose={() => setIsLoginModalOpen(false)}
+          onLoginSuccess={handleLoginSuccess} // Pass handleLoginSuccess function here
+        />
+      )}
     </div>
   );
 };
