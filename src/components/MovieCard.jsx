@@ -5,7 +5,7 @@ import { Link } from "react-router-dom";
 const MovieCard = ({ movie }) => {
   return (
     <motion.div
-      className="bg-gray-800 p-4 rounded-lg shadow-lg"
+      className="bg-gray-800 p-4 rounded-lg shadow-lg mt-4"
       whileHover={{ scale: 1.05 }} // Adds a hover zoom effect
       transition={{ type: "spring", stiffness: 300 }}
     >
@@ -13,7 +13,7 @@ const MovieCard = ({ movie }) => {
         <motion.img
           src={movie.Poster}
           alt={movie.Title}
-          className="w-full h-52 object-cover rounded-lg mb-4"
+          className="w-full h-48 object-cover rounded-lg mb-4"
           whileHover={{ scale: 1.1 }} // Hover effect for the image
           transition={{ type: "spring", stiffness: 300 }}
         />
