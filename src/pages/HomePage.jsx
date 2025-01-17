@@ -2,17 +2,16 @@ import React, { useState, useEffect, useCallback } from "react";
 import MovieCard from "../components/MovieCard";
 import LoadingSpinner from "../components/LoadingSpinner";
 import SearchBar from "../components/SearchBar";
-import useAuth from "../hooks/useAuth"; // Import the custom hook for authentication
-import LoginModal from "../pages/LoginPage"; // Corrected path for LoginModal
+import useAuth from "../hooks/useAuth"; // Remove 'login' from import since it's not used
+import LoginModal from "../pages/LoginPage";
 
 const HomePage = () => {
-  const { isLoggedIn } = useAuth(); // Only get isLoggedIn since login/logout are not used
+  const { isLoggedIn, user, updateWatchlist } = useAuth(); // Remove 'login' from destructuring
   const [movies, setMovies] = useState([]);
   const [loading, setLoading] = useState(false);
   const [query, setQuery] = useState("");
   const [showLoginModal, setShowLoginModal] = useState(false);
 
-  // Use useCallback to memoize searchMovies
   const fetchMovies = useCallback(async (query) => {
     const response = await fetch(
       `https://www.omdbapi.com/?s=${query}&apikey=57fac967`
@@ -21,7 +20,6 @@ const HomePage = () => {
     return data;
   }, []);
 
-  // Wrapping searchMovies in useCallback
   const searchMovies = useCallback(async (query) => {
     setLoading(true);
     const data = await fetchMovies(query);
@@ -31,28 +29,22 @@ const HomePage = () => {
 
   const handleAddToWatchlist = (movie) => {
     if (!isLoggedIn) {
-      setShowLoginModal(true); // Show login modal if not logged in
+      setShowLoginModal(true); // Prompt login if not logged in
     } else {
-      // Add to watchlist logic if logged in
-      let watchlist = JSON.parse(localStorage.getItem("watchlist")) || [];
-      watchlist.push(movie);
-      localStorage.setItem("watchlist", JSON.stringify(watchlist));
+      // Add movie to the watchlist in the local user object
+      const updatedWatchlist = [...user.watchlist, movie];
+      updateWatchlist(updatedWatchlist); // Update the watchlist in both localStorage and React state
     }
-  };
-
-  const handleLoginSuccess = () => {
-    setShowLoginModal(false); // Close modal on login success
   };
 
   useEffect(() => {
     if (query) {
       searchMovies(query);
     }
-  }, [query, searchMovies]); // Using searchMovies as dependency
+  }, [query, searchMovies]);
 
   return (
     <div className="min-h-screen bg-gray-900 text-white">
-      {/* SearchBar Component */}
       <SearchBar onSearch={setQuery} />
 
       {loading ? (
@@ -69,11 +61,10 @@ const HomePage = () => {
         </div>
       )}
 
-      {/* Login Modal */}
       {showLoginModal && (
         <LoginModal
-          onClose={() => setShowLoginModal(false)} // Close modal
-          onLoginSuccess={handleLoginSuccess} // Close modal after login success
+          onClose={() => setShowLoginModal(false)}
+          onLoginSuccess={() => setShowLoginModal(false)}
         />
       )}
     </div>

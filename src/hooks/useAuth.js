@@ -13,7 +13,7 @@ const useAuth = () => {
   }, []);
 
   const login = (name, password) => {
-    const userData = { name, password }; // Store user data
+    const userData = { name, password, watchlist: [] }; // Initialize with empty watchlist
     localStorage.setItem("user", JSON.stringify(userData));
     setIsLoggedIn(true);
     setUser(userData);
@@ -25,7 +25,13 @@ const useAuth = () => {
     setUser(null);
   };
 
-  return { isLoggedIn, user, login, logout };
+  const updateWatchlist = (newWatchlist) => {
+    const updatedUser = { ...user, watchlist: newWatchlist };
+    localStorage.setItem("user", JSON.stringify(updatedUser));
+    setUser(updatedUser);
+  };
+
+  return { isLoggedIn, user, login, logout, updateWatchlist };
 };
 
 export default useAuth;
