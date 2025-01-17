@@ -1,18 +1,29 @@
 import React, { useState, useEffect } from "react";
 import { motion } from "framer-motion"; // Import motion from framer-motion
 import { Link } from "react-router-dom";
+import { useAuth } from "../context/AuthContext"; // Import the AuthContext
 
 const WatchlistPage = () => {
+  const { user } = useAuth(); // Access the user from AuthContext
   const [watchlist, setWatchlist] = useState([]);
 
   useEffect(() => {
-    const user = JSON.parse(localStorage.getItem("user"));
-
     if (user) {
       const storedWatchlist = JSON.parse(localStorage.getItem(user.name))?.watchlist || [];
       setWatchlist(storedWatchlist);
+    } else {
+      setWatchlist([]); // Clear the watchlist when the user logs out
     }
-  }, []);
+  }, [user]); // Add user as a dependency
+
+  if (!user) {
+    return (
+      <div className="p-6 bg-gray-900 text-white min-h-screen">
+        <h1 className="text-3xl font-bold mb-4">Your Watchlist</h1>
+        <p>Please log in to view your watchlist.</p>
+      </div>
+    );
+  }
 
   if (watchlist.length === 0) {
     return (
