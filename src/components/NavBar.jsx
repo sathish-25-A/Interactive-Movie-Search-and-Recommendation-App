@@ -1,7 +1,7 @@
 import React from "react";
 import { useAuth } from "../context/AuthContext";
 import { Link } from "react-router-dom";
-import { FaHeart } from "react-icons/fa"; // Import heart icon
+import { FaHeart } from "react-icons/fa"; 
 
 const Navbar = () => {
   const { user, logout } = useAuth(); // Access user from context
