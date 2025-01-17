@@ -29,8 +29,14 @@ export const AuthProvider = ({ children }) => {
     setUser(null);
   };
 
+  const updateWatchlist = (newWatchlist) => {
+    const updatedUser = { ...user, watchlist: newWatchlist };
+    localStorage.setItem("user", JSON.stringify(updatedUser));
+    setUser(updatedUser);
+  };
+
   return (
-    <AuthContext.Provider value={{ user, login, logout }}>
+    <AuthContext.Provider value={{ user, login, logout, updateWatchlist }}>
       {children}
     </AuthContext.Provider>
   );

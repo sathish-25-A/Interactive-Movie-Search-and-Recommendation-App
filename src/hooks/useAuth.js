@@ -25,8 +25,8 @@ const useAuth = () => {
     setUser(null);
   };
 
-  const updateWatchlist = (newWatchlist) => {
-    const updatedUser = { ...user, watchlist: newWatchlist };
+  const updateWatchlist = (newMovie) => {
+    const updatedUser = { ...user, watchlist: [...user.watchlist, newMovie] };
     localStorage.setItem("user", JSON.stringify(updatedUser));
     setUser(updatedUser);
   };

@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
-import LoginModal from "../pages/LoginPage"; // Assuming you have a LoginModal component
+import { motion } from "framer-motion"; // Import motion from framer-motion
+import LoginModal from "../pages/LoginPage";
 
 const MovieDetailsPage = () => {
   const { id } = useParams();
@@ -25,8 +26,10 @@ const MovieDetailsPage = () => {
 
     if (user) {
       const storedWatchlist = JSON.parse(localStorage.getItem(user.name))?.watchlist || [];
-      const movieInWatchlist = storedWatchlist.some((movie) => movie.imdbID === id);
-      setIsInWatchlist(movieInWatchlist);
+      if (storedWatchlist) {
+        const movieInWatchlist = storedWatchlist.some((movie) => movie.imdbID === id);
+        setIsInWatchlist(movieInWatchlist);
+      }
     }
   }, [id, user]);
 
@@ -49,12 +52,21 @@ const MovieDetailsPage = () => {
   if (!movie) return <div>Loading...</div>;
 
   return (
-    <div className="p-6 bg-gray-900 text-white min-h-screen">
+    <motion.div
+      className="p-6 bg-gray-900 text-white min-h-screen"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      transition={{ duration: 0.5 }}
+    >
       <div className="flex flex-col md:flex-row items-center">
-        <img
+        <motion.img
           src={movie.Poster}
           alt={movie.Title}
           className="w-64 h-96 object-cover rounded-md"
+          initial={{ x: -100 }}
+          animate={{ x: 0 }}
+          transition={{ type: "spring", stiffness: 300 }}
         />
         <div className="ml-6 mt-4 md:mt-0">
           <h1 className="text-3xl font-bold">{movie.Title}</h1>
@@ -73,25 +85,26 @@ const MovieDetailsPage = () => {
             ))}
           </div>
 
-          <button
+          <motion.button
             onClick={handleWatchlist}
             className={`mt-4 px-4 py-2 rounded ${
               isInWatchlist ? "bg-red-600 hover:bg-red-700" : "bg-green-600 hover:bg-green-700"
             }`}
+            whileHover={{ scale: 1.1 }}
+            transition={{ type: "spring", stiffness: 300 }}
           >
             {isInWatchlist ? "Remove from Watchlist" : "Add to Watchlist"}
-          </button>
+          </motion.button>
         </div>
       </div>
 
-      {/* Login modal */}
       {isLoginModalOpen && (
         <LoginModal
           onClose={() => setIsLoginModalOpen(false)}
-          onLoginSuccess={() => setIsLoginModalOpen(false)} // Handle login success if needed
+          onLoginSuccess={() => setIsLoginModalOpen(false)}
         />
       )}
-    </div>
+    </motion.div>
   );
 };
 
