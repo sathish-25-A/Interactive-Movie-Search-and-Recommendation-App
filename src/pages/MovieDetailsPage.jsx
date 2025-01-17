@@ -9,8 +9,6 @@ const MovieDetailsPage = () => {
   const [isInWatchlist, setIsInWatchlist] = useState(false);
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
 
-  const user = JSON.parse(localStorage.getItem("user"));
-
   const fetchMovieDetails = async (id) => {
     try {
       const response = await fetch(`https://www.omdbapi.com/?i=${id}&apikey=57fac967`);
@@ -24,28 +22,47 @@ const MovieDetailsPage = () => {
   useEffect(() => {
     fetchMovieDetails(id);
 
+    const user = JSON.parse(localStorage.getItem("user"));
     if (user) {
       const storedWatchlist = JSON.parse(localStorage.getItem(user.name))?.watchlist || [];
-      if (storedWatchlist) {
-        const movieInWatchlist = storedWatchlist.some((movie) => movie.imdbID === id);
-        setIsInWatchlist(movieInWatchlist);
-      }
+      const movieInWatchlist = storedWatchlist.some((movie) => movie.imdbID === id);
+      setIsInWatchlist(movieInWatchlist);
     }
-  }, [id, user]);
+  }, [id]);
 
   const handleWatchlist = () => {
+    const user = JSON.parse(localStorage.getItem("user"));
+
     if (!user) {
       setIsLoginModalOpen(true);
-    } else if (isInWatchlist) {
-      const updatedWatchlist = JSON.parse(localStorage.getItem(user.name))?.watchlist || [];
-      const newWatchlist = updatedWatchlist.filter((movie) => movie.imdbID !== id);
-      localStorage.setItem(user.name, JSON.stringify({ ...user, watchlist: newWatchlist }));
+      return;
+    }
+
+    const userWatchlist = JSON.parse(localStorage.getItem(user.name))?.watchlist || [];
+    if (isInWatchlist) {
+      // Remove movie from watchlist
+      const updatedWatchlist = userWatchlist.filter((movie) => movie.imdbID !== id);
+      localStorage.setItem(user.name, JSON.stringify({ ...user, watchlist: updatedWatchlist }));
       setIsInWatchlist(false);
     } else {
-      const updatedWatchlist = JSON.parse(localStorage.getItem(user.name))?.watchlist || [];
-      updatedWatchlist.push(movie);
-      localStorage.setItem(user.name, JSON.stringify({ ...user, watchlist: updatedWatchlist }));
+      // Add movie to watchlist
+      userWatchlist.push(movie);
+      localStorage.setItem(user.name, JSON.stringify({ ...user, watchlist: userWatchlist }));
       setIsInWatchlist(true);
+    }
+  };
+
+  const handleLoginSuccess = () => {
+    setIsLoginModalOpen(false);
+
+    const user = JSON.parse(localStorage.getItem("user"));
+    if (user) {
+      const storedWatchlist = JSON.parse(localStorage.getItem(user.name))?.watchlist || [];
+      if (!storedWatchlist.some((movie) => movie.imdbID === id)) {
+        storedWatchlist.push(movie);
+        localStorage.setItem(user.name, JSON.stringify({ ...user, watchlist: storedWatchlist }));
+        setIsInWatchlist(true);
+      }
     }
   };
 
@@ -91,7 +108,7 @@ const MovieDetailsPage = () => {
               isInWatchlist ? "bg-red-600 hover:bg-red-700" : "bg-green-600 hover:bg-green-700"
             }`}
             whileHover={{ scale: 1.1 }}
-            transition={{ type: "spring", stiffness: 300 }}
+            transition={{ type: "spring", stiffness: 100 }}
           >
             {isInWatchlist ? "Remove from Watchlist" : "Add to Watchlist"}
           </motion.button>
@@ -101,7 +118,7 @@ const MovieDetailsPage = () => {
       {isLoginModalOpen && (
         <LoginModal
           onClose={() => setIsLoginModalOpen(false)}
-          onLoginSuccess={() => setIsLoginModalOpen(false)}
+          onLoginSuccess={handleLoginSuccess}
         />
       )}
     </motion.div>
@@ -109,3 +126,4 @@ const MovieDetailsPage = () => {
 };
 
 export default MovieDetailsPage;
+

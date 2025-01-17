@@ -13,7 +13,7 @@ const MovieCard = ({ movie }) => {
         <motion.img
           src={movie.Poster}
           alt={movie.Title}
-          className="w-full h-48 object-cover rounded-lg mb-4"
+          className="w-full h-52 object-cover rounded-lg mb-4"
           whileHover={{ scale: 1.1 }} // Hover effect for the image
           transition={{ type: "spring", stiffness: 300 }}
         />
